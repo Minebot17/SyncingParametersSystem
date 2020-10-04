@@ -73,9 +73,8 @@ namespace SyncingParametersSystem {
                 if (modification
                     && !SPSManager.IsServer
                     && SPS.ClientId != 0
-                    && SPS.GetClient().Equals(parent.GetParent())) {
-                    ModificationStateValueServerMessage message =
-                    new ModificationStateValueServerMessage(GetOwnerId(), GetName());
+                    && (SPS.GetClient().Equals(parent.GetParent()) || parent is GlobalState)) {
+                    ModificationStateValueServerMessage message = new ModificationStateValueServerMessage(GetOwnerId(), GetName());
                     Write(message.Writer);
                     message.SendToServer();
                 }
@@ -176,6 +175,10 @@ namespace SyncingParametersSystem {
             Debug.LogError("State confirmation time out!");
             onAllSynced = null;
             countToConfirm = -1;
+        }
+
+        public override PlayerState GetParent() {
+            return parent;
         }
 
         protected abstract T ReadValue(NetworkReader reader);

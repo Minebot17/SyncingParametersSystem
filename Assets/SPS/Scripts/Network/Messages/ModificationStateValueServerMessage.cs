@@ -17,12 +17,6 @@ namespace SyncingParametersSystem {
             Player player = SPS.GetPlayer(conn);
             int senderId = player.Id;
             int id = reader.ReadInt32();
-            if (senderId != id) {
-                Debug.LogError("Try modification not own state value");
-                Debug.LogError(Environment.StackTrace);
-                return;
-            }
-
             string name = reader.ReadString();
             GeneralStateValue stateValue = player.GetStateValue(name);
 
@@ -30,8 +24,17 @@ namespace SyncingParametersSystem {
                 player.CreateStateWithValue(name);
                 stateValue = player.GetStateValue(name);
 
-                if (stateValue == null)
+                if (stateValue == null) {
                     Debug.LogError(name + " do not exist in any player state");
+                    Debug.LogError(Environment.StackTrace);
+                    return;
+                }
+            }
+            
+            if (senderId != id && !(stateValue.GetParent() is GlobalState)) {
+                Debug.LogError("Try modification not own state value");
+                Debug.LogError(Environment.StackTrace);
+                return;
             }
 
             stateValue.Read(reader, conn);

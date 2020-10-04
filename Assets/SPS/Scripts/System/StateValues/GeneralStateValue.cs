@@ -8,5 +8,6 @@ namespace SyncingParametersSystem {
         public abstract void OnRemoveState();
         public abstract void Reset();
         public abstract void Confirm();
+        public abstract PlayerState GetParent();
     }
 }
