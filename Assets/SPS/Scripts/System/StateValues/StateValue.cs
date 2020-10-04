@@ -36,7 +36,7 @@ namespace SyncingParametersSystem {
 
                 this.value = result.NewValue;
 
-                if (sync != SyncType.NOT_SYNC && SPSManager.Instance.IsServer) {
+                if (sync != SyncType.NOT_SYNC && SPSManager.IsServer) {
                     bool toConfirm = onAllSynced != null;
                     SyncStateValueMessage message = new SyncStateValueMessage(GetOwnerId(), GetName(), toConfirm);
                     Write(message.Writer);
@@ -71,7 +71,7 @@ namespace SyncingParametersSystem {
                 }
 
                 if (modification
-                    && !SPSManager.Instance.IsServer
+                    && !SPSManager.IsServer
                     && SPS.ClientId != 0
                     && SPS.GetClient().Equals(parent.GetParent())) {
                     ModificationStateValueServerMessage message =
@@ -82,8 +82,7 @@ namespace SyncingParametersSystem {
             }
         }
 
-        protected StateValue(PlayerState parent, string name, T defaultValue, bool isTest, SyncType sync,
-        bool modification) {
+        protected StateValue(PlayerState parent, string name, T defaultValue, bool isTest, SyncType sync, bool modification) {
             this.parent = parent;
             this.name = name;
             this.defaultValue = defaultValue;

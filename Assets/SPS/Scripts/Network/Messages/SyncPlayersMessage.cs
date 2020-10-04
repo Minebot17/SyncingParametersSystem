@@ -17,18 +17,20 @@ namespace SyncingParametersSystem {
         public override void OnServer(NetworkReader reader, NetworkConnection conn) {
             SPS.playerRequestPlayersEvent.CallListners(new SPS.ConnectionEvent(conn));
             new SyncPlayersMessage(
-            SPS.All.Select(s => s.Id).ToList(),
-            SPS.GetPlayer(conn).Id,
-            SPS.HostId
+                SPS.All.Select(s => s.Id).ToList(),
+                SPS.GetPlayer(conn).Id,
+                SPS.HostId
             ).SendToClient(conn);
         }
 
         public override void OnClient(NetworkReader reader) {
+            SPS.ResetPlayers();
             List<int> ids = reader.ReadMessage<IntegerListMessage>().Value;
             int clientId = reader.ReadInt32();
             SPS.HostId = reader.ReadInt32();
             SPS.ClientId = clientId;
             ids.ForEach(id => SPS.AddPlayer(id));
+            SPS.playerReceivedPlayersEvent.CallListners(new SPS.PlayerEvent(SPS.GetClient()));
         }
     }
 }

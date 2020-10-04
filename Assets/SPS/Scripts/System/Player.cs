@@ -35,10 +35,6 @@ namespace SyncingParametersSystem {
             return (T) states[typeof(T)];
         }
 
-        public NetworkIdentity GetShip() {
-            return GetState<CommonState>().ShipIdentity.Value;
-        }
-
         /// <summary>
         /// Восстанавливает все StateValue во всех PlayerState к defaultValue
         /// </summary>
@@ -61,7 +57,7 @@ namespace SyncingParametersSystem {
                 return;
 
             RemoveStateMessage message = new RemoveStateMessage(id, stateType.ToString());
-            if (SPSManager.Instance.IsServer)
+            if (SPSManager.IsServer)
                 message.SendToAllClient();
             else
                 message.SendToServer();

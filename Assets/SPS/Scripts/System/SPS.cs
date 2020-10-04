@@ -31,20 +31,15 @@ namespace SyncingParametersSystem {
         /// <summary>
         /// Эвент вызывается при запросе игрока состояний всех других игроков на сервере
         /// </summary>
-        public static readonly EventHandler<ConnectionEvent> playerRequestPlayersEvent =
-        new EventHandler<ConnectionEvent>();
-
+        public static readonly EventHandler<ConnectionEvent> playerRequestPlayersEvent = new EventHandler<ConnectionEvent>();
+        public static readonly EventHandler<PlayerEvent> playerReceivedPlayersEvent = new EventHandler<PlayerEvent>();
         public static readonly EventHandler<PlayerEvent> playerAddedEvent = new EventHandler<PlayerEvent>();
         public static readonly EventHandler<PlayerEvent> playerRemovedEvent = new EventHandler<PlayerEvent>();
         private static List<Type> loadedStates;
         private static readonly List<Player> players = new List<Player>();
         private static readonly Dictionary<int, Player> playerFromId = new Dictionary<int, Player>();
-
-        private static readonly Dictionary<NetworkConnection, Player> playerFromConn =
-        new Dictionary<NetworkConnection, Player>();
-
-        private static readonly Dictionary<NetworkIdentity, Player> playerFromIdentity =
-        new Dictionary<NetworkIdentity, Player>();
+        private static readonly Dictionary<NetworkConnection, Player> playerFromConn = new Dictionary<NetworkConnection, Player>();
+        private static readonly Dictionary<NetworkIdentity, Player> playerFromIdentity = new Dictionary<NetworkIdentity, Player>();
 
         /// <summary>
         /// Список всех игроков
@@ -71,6 +66,13 @@ namespace SyncingParametersSystem {
                 return;
 
             loadedStates = Utils.FindChildesOfType(typeof(PlayerState)).ToList();
+        }
+
+        public static void ResetPlayers() {
+            players.Clear();
+            playerFromId.Clear();
+            playerFromConn.Clear();
+            playerFromIdentity.Clear();
         }
 
         public static Player AddPlayer(NetworkConnection conn) {
@@ -153,6 +155,10 @@ namespace SyncingParametersSystem {
             return playerFromId[HostId];
         }
 
+        public static bool IsPlayerExists(int id) {
+            return playerFromId.ContainsKey(id);
+        }
+
         /// <summary>
         /// Возвращает глобальное состояние
         /// </summary>
@@ -178,7 +184,7 @@ namespace SyncingParametersSystem {
                 return;
 
             RemoveStatesMessage message = new RemoveStatesMessage(stateType.ToString());
-            if (SPSManager.Instance.IsServer)
+            if (SPSManager.IsServer)
                 message.SendToAllClient();
             else
                 message.SendToServer();

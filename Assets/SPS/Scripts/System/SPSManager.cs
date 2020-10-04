@@ -1,31 +1,26 @@
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace SyncingParametersSystem {
     
-    [RequireComponent(typeof(NetworkIdentity))]
     public class SPSManager : MonoBehaviour {
         public static SPSManager Instance;
+        public static bool IsServer;
 
         [SerializeField] private float confirmationTime;
-        private NetworkIdentity identity;
         private bool Init;
-
-        public bool IsServer => identity.isServer;
+        
         public float ConfirmationTime => confirmationTime;
 
         private void Awake() {
-            if (Instance != null) {
-                Destroy(gameObject);
-                return;
-            }
+            if (Instance != null)
+                Destroy(Instance.gameObject);
 
-            identity = GetComponent<NetworkIdentity>();
             DontDestroyOnLoad(gameObject);
             Instance = this;
             Init = true;
+            GameMessage.RegisteredOnServer = false;
+            GameMessage.RegisteredOnClient = false;
             GameMessage.Initialize();
-            SPS.Initialize();
         }
 
         private void Start() {

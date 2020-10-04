@@ -32,8 +32,7 @@ namespace SyncingParametersSystem {
                     }
                 }
 
-                MessageIndexes =
-                new Dictionary<Type, short>(); // Не переносить в класс! Сломаешь инициализацию всех пакетов
+                MessageIndexes = new Dictionary<Type, short>(); // Не переносить в класс! Сломаешь инициализацию всех пакетов
                 foreach (GameMessage message in RegisteredMessages) {
                     MessageIndexes[message.GetType()] = LastIndex;
                     LastIndex++;
@@ -42,7 +41,7 @@ namespace SyncingParametersSystem {
                 Inited = true;
             }
 
-            if (SPSManager.Instance.IsServer && !RegisteredOnServer) {
+            if (SPSManager.IsServer && !RegisteredOnServer) {
                 foreach (GameMessage message in RegisteredMessages) {
                     short index = MessageIndexes[message.GetType()];
                     NetworkServer.RegisterHandler(index,
@@ -57,10 +56,9 @@ namespace SyncingParametersSystem {
                 foreach (GameMessage message in RegisteredMessages) {
                     short index = MessageIndexes[message.GetType()];
                     NetworkManager.singleton.client.RegisterHandler(index, msg => {
-                        if (!SPSManager.Instance.IsServer || message.WithServersClient())
+                        if (!SPSManager.IsServer || message.WithServersClient())
                             RegisteredMessages[msg.msgType - StartIndex].OnClient(msg.reader);
-                    }
-                    );
+                    });
                 }
 
                 RegisteredOnClient = true;
