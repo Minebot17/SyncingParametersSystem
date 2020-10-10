@@ -24,8 +24,6 @@ namespace SyncingParametersSystem {
     /// Так же параметры имеют эвент хандлер на изменения их значения, можно подписаться на него
     /// Имена всех параметров должны быть уникальны при их создании
     /// </summary>
-    ///
-    /// 
     public static class SPS {
 
         /// <summary>
@@ -73,6 +71,8 @@ namespace SyncingParametersSystem {
             playerFromId.Clear();
             playerFromConn.Clear();
             playerFromIdentity.Clear();
+            HostId = 0;
+            ClientId = 0;
         }
 
         public static Player AddPlayer(NetworkConnection conn) {
@@ -83,6 +83,7 @@ namespace SyncingParametersSystem {
             if (players.Count == 0) {
                 HostId = player.Id;
                 HostConn = conn;
+                ClientId = HostId;
             }
 
             players.Add(player);

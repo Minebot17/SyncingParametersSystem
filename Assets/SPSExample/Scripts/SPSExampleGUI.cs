@@ -27,6 +27,8 @@ namespace SPSExample {
             
             SPS.playerReceivedPlayersEvent.SubcribeEvent(ev => {
                 int playersCount = SPS.All.Count;
+                client2 = null;
+                
                 if (playersCount == 2)
                     client1 = ev.Player;
                 else if (playersCount == 3) {
@@ -46,6 +48,9 @@ namespace SPSExample {
                     client1 = ev.Player;
                 else if (client2 == null)
                     client2 = ev.Player;
+
+                if (SPSManager.IsServer)
+                    ev.Player.GetState<ExampleState>().IdentityValue.SetNotSync(identityToState);
             });
 
             SPS.playerRemovedEvent.SubcribeEvent(ev => {
@@ -106,18 +111,51 @@ namespace SPSExample {
             GUILayout.EndHorizontal();
             GUILayout.Space(10);
             GUILayout.Label("Int list in GlobalState");
-            for (int i = 0; i < gState.IntStateList.Count; i++)
-                gState.IntStateList[i].SetWithCheckEquals(EditorGUILayout.IntField("Element " + i, gState.IntStateList[i].Value));
+            for (int i = 0; i < gState.IntStateList.Count; i++) {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Element " + i);
+                gState.IntStateList[i].SetWithCheckEquals(int.Parse(GUILayout.TextField(gState.IntStateList[i].Value+"")));
+                GUILayout.EndHorizontal();
+            }
         }
 
         private void DrawParameters(ExampleState state) {
             state.BoolValue.SetWithCheckEquals(GUILayout.Toggle(state.BoolValue.Value, "BoolValue"));
-            state.IntValue.SetWithCheckEquals(EditorGUILayout.IntField("IntValue", state.IntValue.Value));
-            state.FloatValue.SetWithCheckEquals(EditorGUILayout.FloatField("FloatValue", state.FloatValue.Value));
-            state.StringValue.SetWithCheckEquals(EditorGUILayout.TextField("StringValue", state.StringValue.Value));
-            state.Vector2Value.SetWithCheckEquals(EditorGUILayout.Vector2Field("Vector2Value", state.Vector2Value.Value));
-            state.Vector3Value.SetWithCheckEquals(EditorGUILayout.Vector3Field("Vector3Value", state.Vector3Value.Value));
-            EditorGUILayout.ObjectField("NetworkIdentityState", state.IdentityValue.Value, typeof(NetworkIdentity), true);
+            
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("IntValue");
+            state.IntValue.SetWithCheckEquals(int.Parse(GUILayout.TextField(state.IntValue.Value+"")));
+            GUILayout.EndHorizontal();
+            
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("FloatValue");
+            state.FloatValue.SetWithCheckEquals(float.Parse(GUILayout.TextField(state.FloatValue.Value+"")));
+            GUILayout.EndHorizontal();
+            
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("StringValue");
+            state.StringValue.SetWithCheckEquals(GUILayout.TextField(state.StringValue.Value));
+            GUILayout.EndHorizontal();
+            
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Vector2Value");
+            Vector2 vec2 = Vector2.zero;
+            vec2.x = float.Parse(GUILayout.TextField(state.Vector2Value.Value.x + ""));
+            vec2.y = float.Parse(GUILayout.TextField(state.Vector2Value.Value.y + ""));
+            state.Vector2Value.SetWithCheckEquals(vec2);
+            GUILayout.EndHorizontal();
+            
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Vector3Value");
+            Vector3 vec3 = Vector3.zero;
+            vec3.x = float.Parse(GUILayout.TextField(state.Vector3Value.Value.x + ""));
+            vec3.y = float.Parse(GUILayout.TextField(state.Vector3Value.Value.y + ""));
+            vec3.z = float.Parse(GUILayout.TextField(state.Vector3Value.Value.z + ""));
+            state.Vector3Value.SetWithCheckEquals(vec3);
+            GUILayout.EndHorizontal();
+
+            string identityName = state.IdentityValue.Value == null ? "null" : state.IdentityValue.Value.name;
+            GUILayout.Label("NetworkIdentityState: " + identityName);
         }
     }
 }

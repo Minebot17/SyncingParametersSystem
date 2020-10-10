@@ -24,7 +24,6 @@ namespace SyncingParametersSystem {
         }
 
         public override void OnClient(NetworkReader reader) {
-            SPS.ResetPlayers();
             List<int> ids = reader.ReadMessage<IntegerListMessage>().Value;
             int clientId = reader.ReadInt32();
             SPS.HostId = reader.ReadInt32();

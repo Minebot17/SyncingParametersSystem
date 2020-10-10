@@ -106,8 +106,7 @@ namespace SyncingParametersSystem {
                     SyncStateValueMessage message = new SyncStateValueMessage(GetOwnerId(), GetName(), false);
                     Write(message.Writer);
                     message.SendToClient(e.Conn);
-                }
-                );
+                });
             }
         }
 
@@ -138,6 +137,14 @@ namespace SyncingParametersSystem {
         public void SetWithCheckEquals(T newValue) {
             if (!newValue.Equals(value))
                 Value = newValue;
+        }
+
+        public void SetNotSync(T newValue) {
+            OnChangeValueEvent result = onChangeValueEvent.CallListners(new OnChangeValueEvent(value, newValue));
+            if (result.IsCancel)
+                return;
+
+            value = result.NewValue;
         }
 
         /// <summary>

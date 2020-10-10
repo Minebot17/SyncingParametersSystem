@@ -21,6 +21,7 @@ namespace SyncingParametersSystem {
             GameMessage.RegisteredOnServer = false;
             GameMessage.RegisteredOnClient = false;
             GameMessage.Initialize();
+            SPS.Initialize();
         }
 
         private void Start() {
@@ -28,7 +29,8 @@ namespace SyncingParametersSystem {
                 return;
             
             Init = false;
-            new SyncPlayersMessage().SendToServer();
+            if (!IsServer)
+                new SyncPlayersMessage().SendToServer();
         }
     }
 }
