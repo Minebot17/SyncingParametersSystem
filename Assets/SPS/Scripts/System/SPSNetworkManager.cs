@@ -1,4 +1,3 @@
-using System;
 using UnityEngine.Networking;
 
 namespace SyncingParametersSystem {
@@ -16,7 +15,7 @@ namespace SyncingParametersSystem {
         public override void OnStopClient() {
             SPS.ResetPlayers();
         }
-        
+
         public override void OnServerConnect(NetworkConnection conn) {
             SPS.AddPlayer(conn);
         }

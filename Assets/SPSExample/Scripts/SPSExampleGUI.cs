@@ -25,7 +25,7 @@ namespace SPSExample {
             inited = SPSManager.IsServer;
             redStyle = new GUIStyle {normal = {textColor = Color.red}};
             
-            SPS.playerReceivedPlayersEvent.SubcribeEvent(ev => {
+            SPS.playerReceivedPlayersEvent.SubscribeEvent(ev => {
                 int playersCount = SPS.All.Count;
                 client2 = null;
                 
@@ -40,7 +40,7 @@ namespace SPSExample {
                 inited = true;
             });
             
-            SPS.playerAddedEvent.SubcribeEvent(ev => {
+            SPS.playerAddedEvent.SubscribeEvent(ev => {
                 if (SPS.ClientId == ev.Player.Id)
                     return;
                 
@@ -53,7 +53,7 @@ namespace SPSExample {
                     ev.Player.GetState<ExampleState>().IdentityValue.SetNotSync(identityToState);
             });
 
-            SPS.playerRemovedEvent.SubcribeEvent(ev => {
+            SPS.playerRemovedEvent.SubscribeEvent(ev => {
                 if (client1 == ev.Player) {
                     client1 = client2;
                     client2 = null;

@@ -10,10 +10,7 @@ namespace SyncingParametersSystem {
         private readonly NetworkConnection conn;
         private readonly int id;
         public readonly Dictionary<string, GeneralStateValue> allValues = new Dictionary<string, GeneralStateValue>();
-
-        public readonly Dictionary<string, GeneralStateValue>
-        testValues = new Dictionary<string, GeneralStateValue>(); // это не для теста, не удалять
-
+        public readonly Dictionary<string, GeneralStateValue> testValues = new Dictionary<string, GeneralStateValue>(); // это не для теста, не удалять
         private readonly Dictionary<Type, PlayerState> states = new Dictionary<Type, PlayerState>();
 
         public NetworkConnection Conn => conn;
@@ -23,29 +20,19 @@ namespace SyncingParametersSystem {
             this.conn = conn;
             this.id = id;
         }
-
-        /// <summary>
-        /// Возвращает указанное состояние игрока
-        /// </summary>
-        /// <typeparam name="T">Тип нужного состояния</typeparam>
+        
         public T GetState<T>() where T : PlayerState {
             if (!states.ContainsKey(typeof(T)))
                 return CreateState<T>();
 
             return (T) states[typeof(T)];
         }
-
-        /// <summary>
-        /// Восстанавливает все StateValue во всех PlayerState к defaultValue
-        /// </summary>
+        
         public void ResetStates() {
             foreach (GeneralStateValue value in allValues.Values)
                 value.Reset();
         }
-
-        /// <summary>
-        /// Удаляет состояние игрока из памяти на клиентах и сервере
-        /// </summary>
+        
         public void RemoveState(Type stateType, bool sync = true) {
             PlayerState state = states.Get(stateType);
             if (state != null) {
@@ -58,7 +45,7 @@ namespace SyncingParametersSystem {
 
             RemoveStateMessage message = new RemoveStateMessage(id, stateType.ToString());
             if (SPSManager.IsServer)
-                message.SendToAllClient();
+                message.SendToAllClients();
             else
                 message.SendToServer();
         }

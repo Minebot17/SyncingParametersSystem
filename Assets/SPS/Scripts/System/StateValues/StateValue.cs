@@ -16,33 +16,26 @@ namespace SyncingParametersSystem {
         private NetworkConnection modificationBuffer;
         private int countToConfirm = -1;
         private Coroutine confirmationTimer;
-
-        /// <summary>
-        /// Эвент, срабатывающий при изменении значения параметра
-        /// </summary>
+        
         public readonly EventHandler<OnChangeValueEvent> onChangeValueEvent = new EventHandler<OnChangeValueEvent>();
-
-        /// <summary>
-        /// Срабатывает на сервере когда все получатели синхронизировали значение. После срабатывания очищается в null
-        /// </summary>
-        public Action onAllSynced;
+        public EventHandler<EventBase> onAllSynced = new EventHandler<EventBase>();
 
         public T Value {
             get => value;
             set {
-                OnChangeValueEvent result = onChangeValueEvent.CallListners(new OnChangeValueEvent(this.value, value));
+                OnChangeValueEvent result = onChangeValueEvent.CallListeners(new OnChangeValueEvent(this.value, value));
                 if (result.IsCancel)
                     return;
 
                 this.value = result.NewValue;
 
                 if (sync != SyncType.NOT_SYNC && SPSManager.IsServer) {
-                    bool toConfirm = onAllSynced != null;
+                    bool toConfirm = onAllSynced.ListenersCount() != 0;
                     SyncStateValueMessage message = new SyncStateValueMessage(GetOwnerId(), GetName(), toConfirm);
                     Write(message.Writer);
                     if (modificationBuffer != null) {
                         if (sync == SyncType.ALL_SYNC)
-                            message.SendToAllClient(modificationBuffer, SPS.HostConn);
+                            message.SendToAllClients(modificationBuffer, SPS.HostConn);
                         else
                             message.SendToClient(parent.GetParent().Conn);
 
@@ -58,7 +51,7 @@ namespace SyncingParametersSystem {
                     }
                     else {
                         if (sync == SyncType.ALL_SYNC)
-                            message.SendToAllClientExceptHost();
+                            message.SendToAllClientsExceptHost();
                         else
                             message.SendToClient(parent.GetParent().Conn);
 
@@ -99,7 +92,7 @@ namespace SyncingParametersSystem {
 
                 parent.GetParent().allValues.Add(name, this);
                 parent.AddValue(this);
-                playerRequestPlayersEventId = SPS.playerRequestPlayersEvent.SubcribeEvent(e => {
+                playerRequestPlayersEventId = SPS.playerRequestPlayersEvent.SubscribeEvent(e => {
                     if (this.defaultValue == null ? value == null : this.defaultValue.Equals(value))
                         return;
 
@@ -128,28 +121,22 @@ namespace SyncingParametersSystem {
         }
 
         public override void OnRemoveState() {
-            SPS.playerRequestPlayersEvent.UnSubcribeEvent(playerRequestPlayersEventId);
+            SPS.playerRequestPlayersEvent.UnSubscribeEvent(playerRequestPlayersEventId);
         }
-
-        /// <summary>
-        /// То же самое, что и Value = value, но не синхронизирует если значение в итоге не поменялось
-        /// </summary>
+        
         public void SetWithCheckEquals(T newValue) {
             if (!newValue.Equals(value))
                 Value = newValue;
         }
 
         public void SetNotSync(T newValue) {
-            OnChangeValueEvent result = onChangeValueEvent.CallListners(new OnChangeValueEvent(value, newValue));
+            OnChangeValueEvent result = onChangeValueEvent.CallListeners(new OnChangeValueEvent(value, newValue));
             if (result.IsCancel)
                 return;
 
             value = result.NewValue;
         }
-
-        /// <summary>
-        /// Вызывается от клиента для подтверждения прихода значений, если того требовал сервер
-        /// </summary>
+        
         public override void Confirm() {
             if (countToConfirm == -1)
                 return;
@@ -158,15 +145,15 @@ namespace SyncingParametersSystem {
             if (countToConfirm != 0)
                 return;
 
-            onAllSynced.Invoke();
-            onAllSynced = null;
+            onAllSynced.CallListeners(new EmptyEvent());
+            onAllSynced.Reset();
             countToConfirm = -1;
             SPSManager.Instance.StopCoroutine(confirmationTimer);
         }
 
         private void StartConfirmation(int countToConfirm) {
             if (countToConfirm == 0) {
-                onAllSynced.Invoke();
+                onAllSynced.CallListeners(new EmptyEvent());
                 return;
             }
 
@@ -180,7 +167,7 @@ namespace SyncingParametersSystem {
                 yield break;
 
             Debug.LogError("State confirmation time out!");
-            onAllSynced = null;
+            onAllSynced.Reset();
             countToConfirm = -1;
         }
 

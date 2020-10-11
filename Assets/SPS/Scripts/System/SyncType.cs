@@ -3,4 +3,3 @@ namespace SyncingParametersSystem {
         NOT_SYNC, ALL_SYNC, OWNER_SYNC
     }
 }
-

@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 namespace SyncingParametersSystem {
     
@@ -6,6 +8,7 @@ namespace SyncingParametersSystem {
         public static SPSManager Instance;
         public static bool IsServer;
 
+        [Header("Maximum time in seconds to wait for synchronization confirmation")]
         [SerializeField] private float confirmationTime;
         private bool Init;
         
@@ -14,7 +17,7 @@ namespace SyncingParametersSystem {
         private void Awake() {
             if (Instance != null)
                 Destroy(Instance.gameObject);
-
+            
             DontDestroyOnLoad(gameObject);
             Instance = this;
             Init = true;

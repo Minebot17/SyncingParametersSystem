@@ -5,42 +5,27 @@ using Object = System.Object;
 
 namespace SyncingParametersSystem {
 	
-	/// <summary>
-	/// Система эвентов для какого-либо компонента, что бы перехватывать какие-либо действия и изменять их. Что бы это реализовать, компонент должен иметь реализацию интерфейса IEventProvider
-	/// </summary>
-	/// <typeparam name="T">Тип эвента для системы</typeparam>
 	public class EventHandler<T> : Exception where T : EventBase {
-		private List<Listner<T>> listners = new List<Listner<T>>();
-
-		/// <summary>
-		/// Добавить промежуточный метод. Привязать метод к эвенту
-		/// </summary>
-		public int SubcribeEvent(Action<T> method, EventPriority priority = EventPriority.Normal) {
-			Listner<T> listner = new Listner<T>(method, priority);
-			listners.Add(listner);
-			listners = listners.OrderBy(x => x.GetPriority()).ToList();
-			return listner.GetId();
-		}
-
-		/// <summary>
-		/// Отписывает метод с каким-либо ID от эвента
-		/// </summary>
-		public bool UnSubcribeEvent(int ID) {
-			return listners.RemoveAll(x => ID == x.GetId()) >= 1;
+		private List<Listener<T>> listeners = new List<Listener<T>>();
+		
+		public int SubscribeEvent(Action<T> method, EventPriority priority = EventPriority.Normal) {
+			Listener<T> listener = new Listener<T>(method, priority);
+			listeners.Add(listener);
+			listeners = listeners.OrderBy(x => x.GetPriority()).ToList();
+			return listener.GetId();
 		}
 		
-		public void UnSubcribeAll() {
-			listners.Clear();
+		public bool UnSubscribeEvent(int ID) {
+			return listeners.RemoveAll(x => ID == x.GetId()) >= 1;
 		}
-
-		/// <summary>
-		/// Вызвать эвент у всех слушателей
-		/// </summary>
-		/// <param name="e">Эвент</param>
-		/// <returns>Эвент, прогнаный через слушателей</returns>
-		public T CallListners(T e) {
-			List<Listner<T>> toUnsubscribe = new List<Listner<T>>();
-			foreach (Listner<T> listener in listners) {
+		
+		public void UnSubscribeAll() {
+			listeners.Clear();
+		}
+		
+		public T CallListeners(T e) {
+			List<Listener<T>> toUnsubscribe = new List<Listener<T>>();
+			foreach (Listener<T> listener in listeners) {
 				listener.CallMethod(e);
 
 				if (e.IsUnsubscribe) {
@@ -49,23 +34,24 @@ namespace SyncingParametersSystem {
 				}
 			}
 
-			listners.RemoveAll(l => toUnsubscribe.Contains(l));
+			listeners.RemoveAll(l => toUnsubscribe.Contains(l));
 			return e;
 		}
-
-		/// <summary>
-		/// Убирает из эвента все подписанные методы
-		/// </summary>
+		
 		public void Reset() {
-			listners.Clear();
+			listeners.Clear();
 		}
 
-		public class Listner<T> where T: EventBase {
+		public int ListenersCount() {
+			return listeners.Count;
+		}
+
+		public class Listener<T> where T: EventBase {
 			private readonly int id;
 			private Action<T> method;
 			private EventPriority priority;
 			
-			public Listner(Action<T> method, EventPriority priority) {
+			public Listener(Action<T> method, EventPriority priority) {
 				id = Utils.rnd.Next();
 				this.method = method;
 				this.priority = priority;
@@ -84,10 +70,10 @@ namespace SyncingParametersSystem {
 			}
 
 			public override bool Equals(Object obj) {
-				if (!(obj is Listner<T>))
+				if (!(obj is Listener<T>))
 					return false;
 
-				int id = ((EventHandler<T>.Listner<T>) obj).GetId();
+				int id = ((EventHandler<T>.Listener<T>) obj).GetId();
 				return id == this.id;
 			}
 

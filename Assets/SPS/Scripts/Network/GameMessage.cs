@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 namespace SyncingParametersSystem {
 
-// children must have empty constructor
+    // children must have empty constructor
     public abstract class GameMessage {
 
         public static short StartIndex = 99;
@@ -100,21 +100,21 @@ namespace SyncingParametersSystem {
             SendToClient(player.Conn);
         }
 
-        public void SendToAllClient() {
+        public void SendToAllClients() {
             Writer.FinishMessage();
             foreach (NetworkConnection conn in NetworkServer.connections)
                 SendWriter(() => conn?.SendWriter(Writer, GetChannel()));
         }
 
-        public void SendToAllClient(params NetworkConnection[] excepted) {
+        public void SendToAllClients(params NetworkConnection[] excepted) {
             Writer.FinishMessage();
             foreach (NetworkConnection conn in NetworkServer.connections)
                 if (!excepted.Contains(conn))
                     SendWriter(() => conn?.SendWriter(Writer, GetChannel()));
         }
 
-        public void SendToAllClientExceptHost() {
-            SendToAllClient(SPS.HostConn);
+        public void SendToAllClientsExceptHost() {
+            SendToAllClients(SPS.HostConn);
         }
 
         public void SendWriter(Action sendFunc) {

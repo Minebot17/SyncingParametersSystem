@@ -6,7 +6,7 @@ namespace SyncingParametersSystem {
         private Player parent;
         private bool isTest;
 
-        // Такой конструктор обязателен у детей!
+        // Children must have this constructor
         public PlayerState(Player parent, bool isTest) {
             this.parent = parent;
             this.isTest = isTest;

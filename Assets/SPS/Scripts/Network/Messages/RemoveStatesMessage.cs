@@ -17,7 +17,7 @@ namespace SyncingParametersSystem {
             Type type = Type.GetType(stateClass);
             SPS.RemoveStates(type, false);
 
-            new RemoveStatesMessage(stateClass).SendToAllClient(conn);
+            new RemoveStatesMessage(stateClass).SendToAllClients(conn);
         }
 
         public override void OnClient(NetworkReader reader) {
